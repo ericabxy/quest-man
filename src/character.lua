@@ -45,7 +45,7 @@ function character:move(dt, map)
   local dxmax = 200
   local dymax = 12
   local gravity = 20 * dt
-  local friction = 1.5
+  local friction = 3
   self.dy = self.dy + gravity
   if self.on_ground then
     self.dx = self.dx - friction * self.dx * dt

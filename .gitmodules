@@ -1,0 +1,3 @@
+[submodule "libretro-lutro"]
+	path = libretro-lutro
+	url = https://github.com/libretro/libretro-lutro.git
