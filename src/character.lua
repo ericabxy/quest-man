@@ -1,6 +1,7 @@
 local _ = require('src.const_libretro')
 local gfx_simple_characters = require('src.gfx_simple_characters')
 local sfx_essential = require('src.sfx_essential')
+local score = require('src.score')
 
 local JUMPTIMEMAX = .25
 local XSPEEDMIN = .25
@@ -139,6 +140,8 @@ function character:new(o)
   o = o or {}
   setmetatable(o, self)
   self.__index = self
+  -- Initialization.
+  o.score = score:new()
   return o
 end
 

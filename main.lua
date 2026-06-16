@@ -32,4 +32,5 @@ end
 function love.draw()
   bgmap1:paint(xoffset, yoffset)
   player1:paint(xoffset, yoffset)
+  player1.score:paint()
 end
