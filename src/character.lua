@@ -1,13 +1,17 @@
 local _ = require('src.const_libretro')
 local gfx_simple_tileset = require('src.gfx_simple_tileset')
 
-local JUMPTIMEMAX = .25
 local FRAMERATEMAX = 0.016666666666667
+local JUMPTIMEMAX = .25
+local XSPEEDMIN = .25
+local QUAD1 = love.graphics.newQuad(416, 16, 16, 16, 800, 1280)
+local QUAD2 = love.graphics.newQuad(432, 16, 16, 16, 800, 1280)
+local QUAD3 = love.graphics.newQuad(448, 16, 16, 16, 800, 1280)
 
 local character = {
   controller_number = 0,
   texture = gfx_simple_tileset.texture,
-  quad = love.graphics.newQuad(416, 16, 16, 16, 800, 1280),
+  quad = QUAD1,
   on_ground = false,
   jump_held = false,
   xsize = 16,
@@ -17,6 +21,19 @@ local character = {
   x = 0,
   y = 0,
 }
+
+function character:animate(dt)
+  if not self.on_ground then self.quad = QUAD2
+  elseif self.on_ground and math.abs(self.dx) > .5 then
+    if math.floor(love.timer.getTime() * 5) % 2 == 1 then
+      self.quad = QUAD2
+    elseif math.floor(love.timer.getTime() * 5) % 2 == 0 then
+      self.quad = QUAD3
+    end
+  else
+    self.quad = QUAD1
+  end
+end
 
 function character:clamp(rectangle)
   if self.x < rectangle.x then self.x = rectangle.x
@@ -61,7 +78,7 @@ function character:move(dt, map)
   self.dy = self.dy + gravity
   if self.on_ground then
     self.dx = self.dx * .95
-    if math.abs(self.dx) < .01 then self.dx = 0 end
+    if math.abs(self.dx) < XSPEEDMIN then self.dx = 0 end
   end
   if self.dx < -dxmax then self.dx = -dxmax elseif self.dx > dxmax then self.dx = dxmax end
   if self.dy < -dymax then self.dy = -dymax elseif self.dy > dymax then self.dy = dymax end
@@ -95,6 +112,7 @@ function character:move(dt, map)
   end
   self.x = dx
   self.y = dy
+  self:animate(dt)
 end
 
 function character:paint(xoffset, yoffset)
