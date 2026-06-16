@@ -1,17 +1,13 @@
 local _ = require('src.const_libretro')
-local gfx_simple_tileset = require('src.gfx_simple_tileset')
+local gfx_simple_characters = require('src.gfx_simple_characters')
 
-local FRAMERATEMAX = 0.016666666666667
 local JUMPTIMEMAX = .25
 local XSPEEDMIN = .25
-local QUAD1 = love.graphics.newQuad(416, 16, 16, 16, 800, 1280)
-local QUAD2 = love.graphics.newQuad(432, 16, 16, 16, 800, 1280)
-local QUAD3 = love.graphics.newQuad(448, 16, 16, 16, 800, 1280)
 
 local character = {
   controller_number = 0,
-  texture = gfx_simple_tileset.texture,
-  quad = QUAD1,
+  texture = gfx_simple_characters.texture,
+  quad = gfx_simple_characters.idle[1],
   on_ground = false,
   jump_held = false,
   xsize = 16,
@@ -23,15 +19,18 @@ local character = {
 }
 
 function character:animate(dt)
-  if not self.on_ground then self.quad = QUAD2
+  if self.dx < 0 then self.texture = gfx_simple_characters.texture_left
+  elseif self.dx > 0 then self.texture = gfx_simple_characters.texture
+  end
+  if not self.on_ground then self.quad = gfx_simple_characters.runjump[1]
   elseif self.on_ground and math.abs(self.dx) > .5 then
     if math.floor(love.timer.getTime() * 5) % 2 == 1 then
-      self.quad = QUAD2
+      self.quad = gfx_simple_characters.runjump[1]
     elseif math.floor(love.timer.getTime() * 5) % 2 == 0 then
-      self.quad = QUAD3
+      self.quad = gfx_simple_characters.runatk[1]
     end
   else
-    self.quad = QUAD1
+    self.quad = gfx_simple_characters.idle[1]
   end
 end
 
@@ -71,7 +70,6 @@ function character:control(dt)
 end
 
 function character:move(dt, map)
-  if dt > FRAMERATEMAX then dt = FRAMERATEMAX end  -- Clamp delta time in case physics are running slowly.
   local dxmax = 10
   local dymax = 100
   local gravity = 98 * dt
@@ -84,6 +82,11 @@ function character:move(dt, map)
   if self.dy < -dymax then self.dy = -dymax elseif self.dy > dymax then self.dy = dymax end
   local dx = self.x + self.dx * dt
   local dy = self.y + self.dy * dt
+  -- Pickup gems and other items.
+  if map:get_char(dx, dy) == 'o' then map:set_char(dx, dy, '.') end
+  if map:get_char(dx, dy + 1) == 'o' then map:set_char(dx, dy + 1, '.') end
+  if map:get_char(dx + 1, dy) == 'o' then map:set_char(dx + 1, dy, '.') end
+  if map:get_char(dx + 1, dy + 1) == 'o' then map:set_char(dx + 1, dy + 1, '.') end
   -- Check for and resolve tile collisions.
   if self.dx <= 0 then
     if map:get_char(dx, self.y) ~= '.' or map:get_char(dx, self.y + .9) ~= '.' then

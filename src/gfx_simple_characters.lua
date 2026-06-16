@@ -1,0 +1,37 @@
+return {
+  texture = love.graphics.newImage('share/oga_simples_pimples_characters.png'),
+  texture_left = love.graphics.newImage('share/oga_simples_pimples_characters_mirrored.png'),
+  idle = {
+    love.graphics.newQuad(0, 16, 16, 16, 288, 224),
+    love.graphics.newQuad(96, 16, 16, 16, 288, 224),
+    love.graphics.newQuad(192, 16, 16, 16, 288, 224),
+    love.graphics.newQuad(0, 32, 16, 16, 288, 224),
+    love.graphics.newQuad(96, 32, 16, 16, 288, 224),
+    love.graphics.newQuad(192, 32, 16, 16, 288, 224),
+    love.graphics.newQuad(0, 48, 16, 16, 288, 224),
+    love.graphics.newQuad(96, 48, 16, 16, 288, 224),
+    love.graphics.newQuad(192, 48, 16, 16, 288, 224),
+  },
+  runjump = {
+    love.graphics.newQuad(16, 16, 16, 16, 288, 224),
+    love.graphics.newQuad(112, 16, 16, 16, 288, 224),
+    love.graphics.newQuad(208, 16, 16, 16, 288, 224),
+    love.graphics.newQuad(16, 32, 16, 16, 288, 224),
+    love.graphics.newQuad(112, 32, 16, 16, 288, 224),
+    love.graphics.newQuad(208, 32, 16, 16, 288, 224),
+    love.graphics.newQuad(16, 48, 16, 16, 288, 224),
+    love.graphics.newQuad(112, 48, 16, 16, 288, 224),
+    love.graphics.newQuad(208, 48, 16, 16, 288, 224),
+  },
+  runatk = {
+    love.graphics.newQuad(32, 16, 16, 16, 288, 224),
+    love.graphics.newQuad(128, 16, 16, 16, 288, 224),
+    love.graphics.newQuad(224, 16, 16, 16, 288, 224),
+    love.graphics.newQuad(32, 32, 16, 16, 288, 224),
+    love.graphics.newQuad(128, 32, 16, 16, 288, 224),
+    love.graphics.newQuad(224, 32, 16, 16, 288, 224),
+    love.graphics.newQuad(32, 48, 16, 16, 288, 224),
+    love.graphics.newQuad(128, 48, 16, 16, 288, 224),
+    love.graphics.newQuad(224, 48, 16, 16, 288, 224),
+  }
+}

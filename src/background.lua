@@ -17,6 +17,11 @@ function background:get_char(x, y)
   if self.charmap[x] and self.charmap[x][y] then return self.charmap[x][y] end
 end
 
+function background:set_char(x, y, c)
+  x, y = math.floor(x) + 1, math.floor(y) + 1
+  if self.charmap[x] and self.charmap[x][y] then self.charmap[x][y] = c end
+end
+
 function background:load_string(s)
   self.charmap = {}
   self.width = #(s:match("[^\n]+"))
