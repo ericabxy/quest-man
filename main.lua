@@ -1,4 +1,5 @@
 local rom_stage_1 = require('src.rom_stage_1')
+local sfx_background = require('src.sfx_background')
 local background = require('src.background')
 local character = require('src.character')
 
@@ -8,6 +9,10 @@ local xoffset, yoffset = 0, 0
 local bgmap1 = background:new()
 bgmap1:load_string(rom_stage_1)
 local player1 = character:new{ controller_number = PLAYER_ONE, x = 5, y = 5 }
+
+function love.load()
+  sfx_background.play_bgm()
+end
 
 function love.update(dt)
   if dt > FRAMERATEMAX then dt = FRAMERATEMAX end  -- Clamp delta time in case physics are running slowly.
