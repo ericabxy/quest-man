@@ -1,5 +1,6 @@
 local _ = require('src.const_libretro')
 local gfx_simple_characters = require('src.gfx_simple_characters')
+local sfx_essential = require('src.sfx_essential')
 
 local JUMPTIMEMAX = .25
 local XSPEEDMIN = .25
@@ -10,6 +11,7 @@ local character = {
   quad = gfx_simple_characters.idle[1],
   on_ground = false,
   jump_held = false,
+  n_jump_sfx = 0,
   xsize = 16,
   ysize = 16,
   dx = 0,
@@ -60,6 +62,7 @@ function character:control(dt)
     if self.on_ground and not self.jump_held then
       self.dy = -12
       self.jump_held = dt
+      self.n_jump_sfx = sfx_essential.play_jump()
     elseif not self.on_ground and self.jump_held and self.jump_held < JUMPTIMEMAX then  -- Can hold jump for a split second.
       self.dy = -12
       self.jump_held = self.jump_held + dt
@@ -83,10 +86,10 @@ function character:move(dt, map)
   local dx = self.x + self.dx * dt
   local dy = self.y + self.dy * dt
   -- Pickup gems and other items.
-  if map:get_char(dx, dy) == 'o' then map:set_char(dx, dy, '.') end
-  if map:get_char(dx, dy + 1) == 'o' then map:set_char(dx, dy + 1, '.') end
-  if map:get_char(dx + 1, dy) == 'o' then map:set_char(dx + 1, dy, '.') end
-  if map:get_char(dx + 1, dy + 1) == 'o' then map:set_char(dx + 1, dy + 1, '.') end
+  if map:get_char(dx, dy) == 'o' then map:set_char(dx, dy, '.') sfx_essential.play_gem() end
+  if map:get_char(dx, dy + 1) == 'o' then map:set_char(dx, dy + 1, '.') sfx_essential.play_gem() end
+  if map:get_char(dx + 1, dy) == 'o' then map:set_char(dx + 1, dy, '.') sfx_essential.play_gem() end
+  if map:get_char(dx + 1, dy + 1) == 'o' then map:set_char(dx + 1, dy + 1, '.') sfx_essential.play_gem() end
   -- Check for and resolve tile collisions.
   if self.dx <= 0 then
     if map:get_char(dx, self.y) ~= '.' or map:get_char(dx, self.y + .9) ~= '.' then
@@ -104,7 +107,10 @@ function character:move(dt, map)
     if map:get_char(dx, dy) ~= '.' or map:get_char(dx + .9, dy) ~= '.' then
       dy = math.ceil(dy)
       self.dy = 0
-      if self.jump_held then self.jump_held = JUMPTIMEMAX end
+      if self.jump_held then
+        self.jump_held = JUMPTIMEMAX
+        sfx_essential.stop_jump(self.n_jump_sfx)
+      end
     end
   else
     if map:get_char(dx, dy + 1) ~= '.' or map:get_char(dx + .9, dy + 1) ~= '.' then
