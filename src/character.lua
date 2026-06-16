@@ -1,11 +1,15 @@
 local _ = require('src.const_libretro')
 local gfx_simple_tileset = require('src.gfx_simple_tileset')
 
+local JUMPTIMEMAX = .25
+local FRAMERATEMAX = 0.016666666666667
+
 local character = {
   controller_number = 0,
   texture = gfx_simple_tileset.texture,
   quad = love.graphics.newQuad(416, 16, 16, 16, 800, 1280),
-  on_ground = true,
+  on_ground = false,
+  jump_held = false,
   xsize = 16,
   ysize = 16,
   dx = 0,
@@ -25,7 +29,7 @@ end
 
 function character:control(dt)
   if self.controller_number < 1 or self.controller_number > 8 then return end
-  local speed = self.on_ground and 6 or 4
+  local speed = self.on_ground and 25 or 15
   if love.joystick.isDown(self.controller_number, RETRO_DEVICE_ID_JOYPAD_UP) then
     self.dy = self.dy - dt * speed
   elseif love.joystick.isDown(self.controller_number, RETRO_DEVICE_ID_JOYPAD_DOWN) then
@@ -37,27 +41,36 @@ function character:control(dt)
     self.dx = self.dx + dt * speed
   end
   if love.joystick.isDown(self.controller_number, RETRO_DEVICE_ID_JOYPAD_A) then
-    if self.on_ground then self.dy = -20 end
+    if self.on_ground and not self.jump_held then
+      self.dy = -12
+      self.jump_held = dt
+    elseif not self.on_ground and self.jump_held and self.jump_held < JUMPTIMEMAX then  -- Can hold jump for a split second.
+      self.dy = -12
+      self.jump_held = self.jump_held + dt
+    end
+  elseif self.jump_held then
+    self.jump_held = false
   end
 end
 
 function character:move(dt, map)
-  local dxmax = 200
-  local dymax = 12
-  local gravity = 20 * dt
-  local friction = 3
+  if dt > FRAMERATEMAX then dt = FRAMERATEMAX end  -- Clamp delta time in case physics are running slowly.
+  local dxmax = 10
+  local dymax = 100
+  local gravity = 98 * dt
   self.dy = self.dy + gravity
   if self.on_ground then
-    self.dx = self.dx - friction * self.dx * dt
+    self.dx = self.dx * .95
     if math.abs(self.dx) < .01 then self.dx = 0 end
   end
   if self.dx < -dxmax then self.dx = -dxmax elseif self.dx > dxmax then self.dx = dxmax end
   if self.dy < -dymax then self.dy = -dymax elseif self.dy > dymax then self.dy = dymax end
   local dx = self.x + self.dx * dt
   local dy = self.y + self.dy * dt
+  -- Check for and resolve tile collisions.
   if self.dx <= 0 then
     if map:get_char(dx, self.y) ~= '.' or map:get_char(dx, self.y + .9) ~= '.' then
-      dx = math.floor(dx) + 1
+      dx = math.ceil(dx)
       self.dx = 0
     end
   else
@@ -69,8 +82,9 @@ function character:move(dt, map)
   self.on_ground = false
   if self.dy <= 0 then
     if map:get_char(dx, dy) ~= '.' or map:get_char(dx + .9, dy) ~= '.' then
-      dy = math.floor(dy) + 1
+      dy = math.ceil(dy)
       self.dy = 0
+      if self.jump_held then self.jump_held = JUMPTIMEMAX end
     end
   else
     if map:get_char(dx, dy + 1) ~= '.' or map:get_char(dx + .9, dy + 1) ~= '.' then
